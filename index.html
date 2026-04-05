@@ -29,6 +29,41 @@
             box-shadow: 0 0 40px rgba(0,0,0,0.7);
             margin-bottom: 20px; /* Sobe o jogo inteiro um pouco */
         }
+        /* --- ADICIONE A PARTIR DAQUI --- */
+
+        /* AJUSTE PARA DESKTOP (Telas maiores que 1024px) */
+        @media (min-width: 1024px) {
+            .game-wrapper {
+                height: 90vh;      /* Um pouco menor para não colar no topo/fundo */
+                max-width: 450px;  /* Deixa o jogo mais "esguio" e elegante no PC */
+            }
+            .tile { font-size: 18px; } /* Aumenta um pouco a letra no PC se quiser */
+        }
+
+        /* AJUSTE EXCLUSIVO PARA CELULARES (Telas menores) */
+        @media (max-width: 480px) {
+            .game-wrapper {
+                width: 100vw;      /* Ocupa a largura total no celular */
+                height: 100vh;     /* Ocupa a altura total no celular */
+                border-radius: 0;  /* Remove arredondado das bordas para ganhar espaço */
+                border-width: 2px; /* Bordas mais finas no celular */
+                margin-bottom: 0;
+            }
+            
+            .expression-area {
+                padding-bottom: 80px; /* Sobe ainda mais os botões para fugir da barra do Android */
+            }
+            .tile {
+                font-size: 14px; /* Ajusta o tamanho da fonte para telas muito pequenas */
+            }
+
+            .board {
+                margin: 5px;       /* Diminui margens laterais para os números ficarem maiores */
+                gap: 4px;
+            }
+        }
+        
+        /* --- FIM DOS AJUSTES --- */
 
         .header {
             display: flex; justify-content: space-between; align-items: center;
