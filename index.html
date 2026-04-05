@@ -22,10 +22,12 @@
         }
 
         .game-wrapper {
-            width: 100vw; height: 100vh; max-width: 600px;
+            width: 95vw; height: 95vh; max-width: 600px;
             background: linear-gradient(180deg, #1e3a1e 0%, #0a150a 100%);
             border: 5px solid var(--primary); border-radius: 25px;
-            display: flex; flex-direction: column; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.7);
+            display: flex; flex-direction: column; position: relative; 
+            box-shadow: 0 0 40px rgba(0,0,0,0.7);
+            margin-bottom: 20px; /* Sobe o jogo inteiro um pouco */
         }
 
         .header {
@@ -47,8 +49,8 @@
         .board {
             flex: 1; display: grid; grid-template-columns: repeat(10, 1fr);
             grid-template-rows: repeat(8, 1fr); gap: 6px; padding: 15px;
-            background: rgba(0,0,0,0.3); margin: 15px; border-radius: 15px;
-            min-height: 0; /* Permite que o grid diminua se necessário */
+            background: rgba(0,0,0,0.3); margin: 10px 15px; border-radius: 15px;
+            min-height: 0;
         }
         
         .tile {
@@ -60,10 +62,10 @@
         .tile:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a6d3b; }
         .tile.empty { background: transparent; box-shadow: none; opacity: 0.05; pointer-events: none; }
 
-        /* AJUSTE AQUI: Aumentado o padding-bottom para subir a expressão */
+        /* AJUSTE FINAL DE ELEVAÇÃO: Aumentado o padding bottom significativamente */
         .expression-area {
-            background: rgba(0,0,0,0.7); 
-            padding: 20px 25px 45px 25px; /* 45px no bottom garante visibilidade */
+            background: rgba(0,0,0,0.85); 
+            padding: 20px 25px 60px 25px; /* 60px de espaço livre no fundo */
             border-top: 3px solid var(--primary); 
             border-radius: 25px 25px 0 0;
             flex-shrink: 0;
@@ -72,7 +74,7 @@
         .slots-container { display: flex; align-items: center; gap: 10px; justify-content: center; flex-wrap: wrap; }
         
         .slot {
-            width: 48px; height: 48px; border: 2px dashed var(--primary);
+            width: 46px; height: 46px; border: 2px dashed var(--primary);
             border-radius: 10px; display: flex; align-items: center; justify-content: center;
             font-family: 'Fredoka One'; font-size: 20px; background: rgba(255,255,255,0.05);
         }
@@ -81,8 +83,8 @@
         .op { font-family: 'Fredoka One'; font-size: 22px; color: var(--primary); text-shadow: 0 0 5px rgba(0,0,0,0.5); }
         
         .result-box {
-            background: #600; color: white; padding: 10px 20px; font-family: 'Fredoka One';
-            border-radius: 8px; border: 2px solid var(--primary); font-size: 26px;
+            background: #600; color: white; padding: 10px 18px; font-family: 'Fredoka One';
+            border-radius: 8px; border: 2px solid var(--primary); font-size: 24px;
         }
 
         .modal {
@@ -127,7 +129,7 @@
     </div>
 
     <div id="modal-pause" class="modal">
-        <h2 style="font-family:'Fredoka One'; color:var(--primary); font-size:38px; margin-bottom: 10px;">JOGO PAUSADO</h2>
+        <h2 style="font-family:'Fredoka One'; color:var(--primary); font-size:32px; margin-bottom: 10px;">JOGO PAUSADO</h2>
         <button class="btn btn-resume" onclick="togglePause()">RETOMAR DESAFIO</button>
         <p style="margin-top:50px; font-size: 14px; color: #888;">Deseja reiniciar a partida atual?</p>
         <div style="display:flex; gap:15px; width:100%;">
