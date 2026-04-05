@@ -1,0 +1,322 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Math Quest: Mixed Operations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d4af37; --bg-dark: #0f2010;
+            --cell-bg: #f9d978; --cell-text: #5d4037;
+            --danger: #e74c3c; --success: #2ecc71;
+        }
+        * { touch-action: manipulation; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; background: var(--bg-dark); 
+            background-image: radial-gradient(#1a3a1a 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Nunito', sans-serif;
+            display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; color: white;
+        }
+
+        .game-wrapper {
+            width: 100vw; height: 100vh; max-width: 500px;
+            background: linear-gradient(180deg, #1e3a1e 0%, #0a150a 100%);
+            border: 5px solid var(--primary); border-radius: 25px;
+            display: flex; flex-direction: column; position: relative; box-shadow: 0 0 40px rgba(0,0,0,0.7);
+        }
+
+        .header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; background: rgba(0,0,0,0.5); border-bottom: 2px solid var(--primary);
+        }
+        
+        .medal-tag { 
+            font-family: 'Fredoka One'; padding: 4px 12px; border-radius: 20px; 
+            text-transform: uppercase; font-size: 12px; border: 1px solid rgba(255,255,255,0.3);
+        }
+        .bronze { background: #cd7f32; color: white; }
+        .prata { background: #c0c0c0; color: #333; }
+        .ouro { background: #ffd700; color: #333; box-shadow: 0 0 15px rgba(255, 215, 0, 0.4); }
+
+        .btn-icon { background: none; border: none; color: var(--primary); font-size: 24px; cursor: pointer; }
+
+        .board {
+            flex: 1; display: grid; grid-template-columns: repeat(10, 1fr);
+            grid-template-rows: repeat(8, 1fr); gap: 4px; padding: 12px;
+            background: rgba(0,0,0,0.3); margin: 10px; border-radius: 15px;
+        }
+        
+        .tile {
+            background: linear-gradient(145deg, #f9d978, #d4af37);
+            border-radius: 6px; display: flex; align-items: center; justify-content: center;
+            color: var(--cell-text); font-family: 'Fredoka One'; font-size: 15px; 
+            cursor: pointer; box-shadow: 0 3px 0 #8a6d3b; transition: 0.1s;
+        }
+        .tile:active { transform: translateY(2px); box-shadow: 0 1px 0 #8a6d3b; }
+        .tile.empty { background: transparent; box-shadow: none; opacity: 0.05; pointer-events: none; }
+
+        .expression-area {
+            background: rgba(0,0,0,0.7); padding: 20px;
+            border-top: 3px solid var(--primary); border-radius: 25px 25px 0 0;
+        }
+        
+        .slots-container { display: flex; align-items: center; gap: 8px; justify-content: center; flex-wrap: wrap; }
+        
+        .slot {
+            width: 42px; height: 42px; border: 2px dashed var(--primary);
+            border-radius: 10px; display: flex; align-items: center; justify-content: center;
+            font-family: 'Fredoka One'; font-size: 18px; background: rgba(255,255,255,0.05);
+        }
+        .slot.filled { border-style: solid; background: var(--cell-bg); color: var(--cell-text); border: none; box-shadow: 0 3px 0 #8a6d3b; }
+        
+        .op { font-family: 'Fredoka One'; font-size: 20px; color: var(--primary); text-shadow: 0 0 5px rgba(0,0,0,0.5); }
+        
+        .result-box {
+            background: #600; color: white; padding: 8px 15px; font-family: 'Fredoka One';
+            border-radius: 8px; border: 2px solid var(--primary); font-size: 24px;
+        }
+
+        .modal {
+            position: absolute; inset: 0; background: rgba(0,0,0,0.9);
+            display: none; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; padding: 30px; text-align: center; border-radius: 20px;
+        }
+        
+        .btn {
+            padding: 15px; border: none; border-radius: 12px; font-family: 'Fredoka One';
+            font-size: 18px; cursor: pointer; width: 100%; margin-top: 10px;
+        }
+        .btn-resume { background: var(--primary); color: #000; }
+        .btn-yes { background: var(--success); color: white; }
+        .btn-no { background: var(--danger); color: white; }
+
+        #feedback {
+            position: absolute; top: 40%; width: 100%; text-align: center;
+            font-family: 'Fredoka One'; font-size: 50px; pointer-events: none;
+            z-index: 500; display: none; text-shadow: 4px 4px rgba(0,0,0,0.8);
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-wrapper">
+    <div class="header">
+        <button class="btn-icon" onclick="togglePause()">⏸</button>
+        <div style="text-align: center;">
+            <div id="medal-display" class="medal-tag bronze">Bronze</div>
+            <div style="font-size: 10px; color: #aaa; margin-top: 2px;">PTS: <span id="score">0</span></div>
+        </div>
+        <div id="timer" style="font-family: monospace; font-size: 18px; color: var(--primary);">00.00</div>
+    </div>
+
+    <div id="feedback">BOA!</div>
+    <div class="board" id="board"></div>
+
+    <div class="expression-area">
+        <div style="text-align: center; margin-bottom: 10px; font-size: 11px; color: #ffd700; letter-spacing: 1px;">QUESTÃO <span id="q-curr">1</span> / 5</div>
+        <div class="slots-container" id="slots-container"></div>
+    </div>
+
+    <div id="modal-pause" class="modal">
+        <h2 style="font-family:'Fredoka One'; color:var(--primary); font-size:32px;">PAUSA</h2>
+        <button class="btn btn-resume" onclick="togglePause()">CONTINUAR JOGANDO</button>
+        <p style="margin-top:40px;">Deseja reiniciar o jogo?</p>
+        <div style="display:flex; gap:10px; width:100%;">
+            <button class="btn btn-yes" onclick="location.reload()">SIM</button>
+            <button class="btn btn-no" onclick="togglePause()">NÃO</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let score = 0, currentLevel = 1, questionNum = 1, isPaused = false;
+    let slots = [], targetResult = 0, expressionPattern = [];
+    let boardData = [], startTime = Date.now(), pausedTime = 0;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSnd(f, t, d) {
+        const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+        o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+        g.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + d);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + d);
+    }
+
+    const sfx = {
+        hit: () => playSnd(800, 'sine', 0.2),
+        error: () => playSnd(150, 'sawtooth', 0.4),
+        win: () => { playSnd(600, 'sine', 0.1); setTimeout(()=>playSnd(900, 'sine', 0.2), 100); },
+        click: () => playSnd(1200, 'sine', 0.05)
+    };
+
+    function initBoard() {
+        const b = document.getElementById('board');
+        b.innerHTML = ''; boardData = [];
+        const max = currentLevel * 12;
+        for (let i = 0; i < 80; i++) {
+            let val = Math.floor(Math.random() * max) + 1;
+            boardData.push({ val, active: true });
+            const d = document.createElement('div');
+            d.className = 'tile'; d.id = `t-${i}`; d.textContent = val;
+            d.onclick = () => selectNumber(i);
+            b.appendChild(d);
+        }
+        updateUI();
+    }
+
+    function updateUI() {
+        const m = document.getElementById('medal-display');
+        const lvls = ["", "bronze", "prata", "ouro"];
+        m.className = 'medal-tag ' + lvls[currentLevel];
+        m.textContent = currentLevel === 1 ? 'Bronze' : (currentLevel === 2 ? 'Prata' : 'Ouro');
+    }
+
+    function generateExpression() {
+        const container = document.getElementById('slots-container');
+        container.innerHTML = ''; slots = []; expressionPattern = [];
+        
+        // Número de operações baseado no nível
+        let numOps = currentLevel; 
+        let values = [];
+        const avail = boardData.filter(d => d.active);
+        
+        // Sorteia números do tabuleiro para garantir que a conta seja possível
+        for(let i=0; i <= numOps; i++) {
+            values.push(avail[Math.floor(Math.random() * avail.length)].val);
+        }
+
+        // Mistura de operações
+        let expStr = values[0].toString();
+        expressionPattern.push('slot');
+        
+        // Define quais operações podem aparecer
+        const opsPool = currentLevel === 1 ? ['+', '-'] : ['+', '-', '*', '/'];
+
+        for(let i=0; i < numOps; i++) {
+            // Sorteia uma operação aleatória da piscina para CADA posição
+            let op = opsPool[Math.floor(Math.random() * opsPool.length)];
+            expressionPattern.push(op);
+            expressionPattern.push('slot');
+            expStr += op + values[i+1];
+        }
+
+        // Validação da Expressão
+        try {
+            targetResult = eval(expStr); // Usando eval para calcular com prioridade (* antes de +)
+        } catch(e) { return generateExpression(); }
+
+        // Regras: resultado inteiro, positivo e não astronômico
+        if (targetResult < 1 || targetResult > 500 || !Number.isInteger(targetResult)) {
+            return generateExpression();
+        }
+
+        let sCount = 0;
+        expressionPattern.forEach(item => {
+            if (item === 'slot') {
+                const s = document.createElement('div');
+                s.className = 'slot';
+                const id = sCount++;
+                s.onclick = () => clearSlot(id);
+                container.appendChild(s);
+                slots.push({ el: s, val: null, boardIdx: null });
+            } else {
+                const o = document.createElement('div');
+                o.className = 'op';
+                o.textContent = item.replace('*','×').replace('/','÷');
+                container.appendChild(o);
+            }
+        });
+
+        const res = document.createElement('div');
+        res.className = 'result-box';
+        res.innerHTML = `<small style="font-size:12px">=</small> ${targetResult}`;
+        container.appendChild(res);
+    }
+
+    function selectNumber(idx) {
+        if (isPaused) return;
+        const empty = slots.find(s => s.val === null);
+        if (!empty || !boardData[idx].active) return;
+
+        sfx.click();
+        empty.val = boardData[idx].val;
+        empty.boardIdx = idx;
+        empty.el.textContent = empty.val;
+        empty.el.classList.add('filled');
+        boardData[idx].active = false;
+        document.getElementById(`t-${idx}`).classList.add('empty');
+        checkAnswer();
+    }
+
+    function clearSlot(idx) {
+        if (isPaused) return;
+        const s = slots[idx];
+        if (s.val === null) return;
+        boardData[s.boardIdx].active = true;
+        document.getElementById(`t-${s.boardIdx}`).classList.remove('empty');
+        s.val = null; s.el.textContent = ''; s.el.classList.remove('filled');
+        sfx.click();
+    }
+
+    function checkAnswer() {
+        if (slots.some(s => s.val === null)) return;
+
+        let finalExp = "";
+        let sIdx = 0;
+        expressionPattern.forEach(item => {
+            finalExp += (item === 'slot') ? slots[sIdx++].val : item;
+        });
+
+        if (eval(finalExp) === targetResult) {
+            score += (currentLevel * 100);
+            document.getElementById('score').textContent = score;
+            showMsg("ACERTOU!", "#2ecc71");
+            sfx.win();
+            setTimeout(() => {
+                questionNum++;
+                if (questionNum > 5) {
+                    currentLevel = Math.min(3, currentLevel + 1);
+                    questionNum = 1;
+                    initBoard();
+                }
+                document.getElementById('q-curr').textContent = questionNum;
+                generateExpression();
+            }, 800);
+        } else {
+            showMsg("ERRO!", "#e74c3c");
+            sfx.error();
+            setTimeout(() => slots.forEach((_, i) => clearSlot(i)), 600);
+        }
+    }
+
+    function showMsg(t, c) {
+        const f = document.getElementById('feedback');
+        f.textContent = t; f.style.color = c; f.style.display = 'block';
+        setTimeout(() => f.style.display = 'none', 800);
+    }
+
+    function togglePause() {
+        isPaused = !isPaused;
+        document.getElementById('modal-pause').style.display = isPaused ? 'flex' : 'none';
+        if (isPaused) pausedTime = Date.now();
+        else startTime += (Date.now() - pausedTime);
+    }
+
+    function runTimer() {
+        if (!isPaused) {
+            const sec = (Date.now() - startTime) / 1000;
+            document.getElementById('timer').textContent = sec.toFixed(2);
+        }
+        requestAnimationFrame(runTimer);
+    }
+
+    initBoard();
+    generateExpression();
+    runTimer();
+</script>
+</body>
+</html>
